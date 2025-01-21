@@ -1,17 +1,21 @@
 package cheongchul.cheongchul_eolam.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
-
 @Getter
 @Setter
 @NoArgsConstructor
+@Entity
 public class Member  {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long memberId;
     private String email;
     private String password;
@@ -22,13 +26,9 @@ public class Member  {
     private String department;
     private boolean isAdmin = false;
 
-    public Member(String email,String name){
+
+    public Member(String email, String password) {
         this.email = email;
-        this.name = name;
-    }
-    public Member(long memberId,String email,List<String> role){
-        this.memberId = memberId;
-        this.email = email;
-        this.role = this.role;
+        this.password = password;
     }
 }

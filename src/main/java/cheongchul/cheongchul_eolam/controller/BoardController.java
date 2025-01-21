@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -40,8 +41,8 @@ public class BoardController {
     }
     //겟 전체글
     @GetMapping("/all")
-    public ResponseEntity<Map<Long,Board>> allBoard(){
-      Map<Long,Board> boards = boardService.allBoards();
+    public ResponseEntity<List<Board>> allBoard(){
+      List<Board> boards = boardService.allBoards();
         return new ResponseEntity<>(boards,HttpStatus.OK);
     }
     //패치 글
@@ -64,5 +65,4 @@ public class BoardController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 }
