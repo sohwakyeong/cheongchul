@@ -1,6 +1,6 @@
 package cheongchul.cheongchul_eolam.dto;
 
-import cheongchul.cheongchul_eolam.domain.Member;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,5 +18,4 @@ public class MemberDTO {
     private String role;
     private String university;
     private String department;
-    private boolean isAdmin;
 }

@@ -87,7 +87,6 @@ public class MemberServiceTest {
         Member member = memberRepository.findAll().get(0);
         memberService.deleteMember(member.getMemberId());
 
-        //검증 방법 생각해보기
         assertThrows(NoSuchElementException.class, () -> {
             memberRepository.findById(member.getMemberId()).orElseThrow(()-> new NoSuchElementException());
         });

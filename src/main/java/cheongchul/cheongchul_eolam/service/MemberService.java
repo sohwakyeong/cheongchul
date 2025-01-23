@@ -93,8 +93,7 @@ public class MemberService {
                 member.getNickname(),
                 member.getRole(),
                 member.getUniversity(),
-                member.getDepartment(),
-                member.isAdmin()
+                member.getDepartment()
         );
     }
 }

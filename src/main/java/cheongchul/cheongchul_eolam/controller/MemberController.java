@@ -9,6 +9,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+
+/**
+ * To-Do List:
+ * - [2025-01-24] @ControllerAdvice 사용 해서 에러 처리 분리 시키기.
+ * - [2025-01-24] MemberRequest DTO/MemberResponse DTO 따로 만들어서  엔티티와 역할분리 및 보안강화.
+ * - [2025-01-24] 회원 인가처리를 위해 security 도입
+ * - [2025-01-25] 보드 DTO작성
+ */
+
+
+
 @RestController
 @RequestMapping("/member")
 public class MemberController {
@@ -26,7 +37,7 @@ public class MemberController {
             MemberDTO newMember = memberService.register(member);
             return new ResponseEntity<>(newMember, HttpStatus.CREATED);
         }catch (Exception e){
-            return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
     //회원 로그인
@@ -40,7 +51,7 @@ public class MemberController {
             return new ResponseEntity<>(loginedMember,HttpStatus.OK);
         }
         catch (Exception e) {
-            return new ResponseEntity<>(null,HttpStatus.UNAUTHORIZED);
+          return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
     }
@@ -51,7 +62,7 @@ public class MemberController {
             MemberDTO foundIdMember = memberService.findById(memberId);
             return new ResponseEntity<>(foundIdMember,HttpStatus.OK);
         }catch (Exception e){
-            return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
@@ -62,7 +73,7 @@ public class MemberController {
             MemberDTO updatedMember = memberService.updatedMember(memberId, updateMember);
             return new ResponseEntity<>(updatedMember, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
     @PatchMapping("/{memberId}/password")
@@ -74,7 +85,7 @@ public class MemberController {
             MemberDTO updatedMember = memberService.updatedPassword(memberId, oldPassword, newPassword);
             return new ResponseEntity<>(updatedMember, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -83,7 +94,7 @@ public class MemberController {
         memberService.deleteMember(memberId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
        } catch (Exception e) {
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
        }
     }
 }

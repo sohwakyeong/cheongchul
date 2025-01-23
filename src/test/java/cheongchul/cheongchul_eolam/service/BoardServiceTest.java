@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-//setUp에 테스트 끝나고 난 후 테이블 비우기 넣기
+
 @SpringBootTest
 @Transactional
 public class BoardServiceTest {
