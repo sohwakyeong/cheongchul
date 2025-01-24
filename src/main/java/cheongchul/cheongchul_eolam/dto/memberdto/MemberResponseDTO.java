@@ -1,4 +1,4 @@
-package cheongchul.cheongchul_eolam.dto;
+package cheongchul.cheongchul_eolam.dto.memberdto;
 
 
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberDTO {
+public class MemberResponseDTO {
     private long memberId;
     private String email;
     private String name;
@@ -18,4 +18,5 @@ public class MemberDTO {
     private String role;
     private String university;
     private String department;
+    private boolean isAdmin;
 }

@@ -24,8 +24,7 @@ public class Member  {
     private String role;
     private String university;
     private String department;
-    private boolean isAdmin = false;
-
+    private boolean isAdmin;
 
     public Member(String email, String password) {
         this.email = email;

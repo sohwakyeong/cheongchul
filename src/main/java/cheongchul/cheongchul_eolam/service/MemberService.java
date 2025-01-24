@@ -1,9 +1,11 @@
 package cheongchul.cheongchul_eolam.service;
 
 import cheongchul.cheongchul_eolam.domain.Member;
-import cheongchul.cheongchul_eolam.dto.MemberDTO;
+import cheongchul.cheongchul_eolam.dto.memberdto.MemberResponseDTO;
+import cheongchul.cheongchul_eolam.dto.memberdto.SignupRequestDTO;
+import cheongchul.cheongchul_eolam.dto.memberdto.UpdateMemberDTO;
+import cheongchul.cheongchul_eolam.mapper.MemberMapper;
 import cheongchul.cheongchul_eolam.repository.MemberRepository;
-import jakarta.persistence.Id;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,61 +14,62 @@ import java.util.*;
 @Service
 public class MemberService {
 
-
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
+    private final MemberMapper memberMapper;
 
-    public MemberService(PasswordEncoder passwordEncoder,MemberRepository memberRepository) {
+    public MemberService(PasswordEncoder passwordEncoder, MemberRepository memberRepository, MemberMapper memberMapper) {
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
+        this.memberMapper = memberMapper;
     }
 
     //회원 가입
-    public MemberDTO register(Member member){
-       String encodedPassword = passwordEncoder.encode(member.getPassword());
-       member.setPassword(encodedPassword);
+    public MemberResponseDTO register(SignupRequestDTO signupRequestDTO){
+       Member member = memberMapper.toMemberEntity(signupRequestDTO);
+       member.setPassword(passwordEncoder.encode(signupRequestDTO.getPassword()));
        memberRepository.save(member);
-       return convertToDTO(member);
+       return memberMapper.toMemberResponseDTO(member);
     }
 
     //회원 로그인
-    public MemberDTO login(String email,String password){
+    public MemberResponseDTO login(String email, String password){
        Member member = memberRepository.findByEmail(email).orElseThrow(()->new IllegalArgumentException("이메일을 확인 해주세요."));
        if(!passwordEncoder.matches(password, member.getPassword())){
            throw new IllegalArgumentException("비밀번호 입력 오류입니다.");
        }
-        return convertToDTO(member);
+        return memberMapper.toMemberResponseDTO(member);
     }
 
 
     //회원 조회
-    public MemberDTO findById (long memberId){
+    public MemberResponseDTO findById (long memberId){
         Member member = memberRepository.findById(memberId).orElseThrow(()-> new NoSuchElementException("존재하지 않는 회원입니다."));
-        return convertToDTO(member);
+        return memberMapper.toMemberResponseDTO(member);
     }
 
     //회원 정보 수정
-    public MemberDTO updatedMember(long memberId,Member updatedMember) {
+    public MemberResponseDTO updatedMember(long memberId, UpdateMemberDTO updateMemberDTO) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()-> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-        if (updatedMember.getNickname() != null){
-            member.setNickname(updatedMember.getNickname());
+        if (updateMemberDTO.getNickname() != null){
+            member.setNickname(updateMemberDTO.getNickname());
         }
-        if (updatedMember.getUniversity() != null){
-            member.setNickname(updatedMember.getUniversity());
+        if (updateMemberDTO.getUniversity() != null){
+            member.setUniversity(updateMemberDTO.getUniversity());
         }
-        if (updatedMember.getDepartment() != null){
-            member.setNickname(updatedMember.getDepartment());
+        if (updateMemberDTO.getDepartment() != null){
+            member.setDepartment(updateMemberDTO.getDepartment());
         }
-        if (updatedMember.getRole() != null){
-            member.setNickname(updatedMember.getRole());
+        if (updateMemberDTO.getRole() != null){
+            member.setRole(updateMemberDTO.getRole());
         }
-        return convertToDTO(member);
+        return memberMapper.toMemberResponseDTO(member);
     }
     //회원 비밀번호 수정
-    public MemberDTO updatedPassword(long memberId,String oldPassword,String newPassword){
+    public MemberResponseDTO updatedPassword(long memberId, String oldPassword, String newPassword){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()-> new NoSuchElementException("존재하지 않는 회원입니다."));
         if(member == null){
@@ -77,23 +80,11 @@ public class MemberService {
         }
         String encodedNewPassword = passwordEncoder.encode(newPassword);
         member.setPassword(encodedNewPassword);
-        return convertToDTO(member);
+        return memberMapper.toMemberResponseDTO(member);
     }
 
     //회원 탈퇴
     public void deleteMember(long memberId){
       memberRepository.deleteById(memberId);
-    }
-
-    private MemberDTO convertToDTO(Member member) {
-        return new MemberDTO(
-                member.getMemberId(),
-                member.getEmail(),
-                member.getName(),
-                member.getNickname(),
-                member.getRole(),
-                member.getUniversity(),
-                member.getDepartment()
-        );
     }
 }

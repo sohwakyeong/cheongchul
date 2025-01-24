@@ -1,7 +1,10 @@
 package cheongchul.cheongchul_eolam.controller;
 
 import cheongchul.cheongchul_eolam.domain.Member;
-import cheongchul.cheongchul_eolam.dto.MemberDTO;
+import cheongchul.cheongchul_eolam.dto.memberdto.LoginRequestDTO;
+import cheongchul.cheongchul_eolam.dto.memberdto.MemberResponseDTO;
+import cheongchul.cheongchul_eolam.dto.memberdto.SignupRequestDTO;
+import cheongchul.cheongchul_eolam.dto.memberdto.UpdateMemberDTO;
 import cheongchul.cheongchul_eolam.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +22,6 @@ import java.util.Map;
  */
 
 
-
 @RestController
 @RequestMapping("/member")
 public class MemberController {
@@ -32,9 +34,9 @@ public class MemberController {
 
     //회원 가입
     @PostMapping("/register")
-    public ResponseEntity <MemberDTO> register(@RequestBody Member member) {
+    public ResponseEntity <MemberResponseDTO> register(@RequestBody SignupRequestDTO signupRequestDTO) {
         try{
-            MemberDTO newMember = memberService.register(member);
+            MemberResponseDTO newMember = memberService.register(signupRequestDTO);
             return new ResponseEntity<>(newMember, HttpStatus.CREATED);
         }catch (Exception e){
             return ResponseEntity.badRequest().build();
@@ -42,24 +44,23 @@ public class MemberController {
     }
     //회원 로그인
     @PostMapping("login")
-    public ResponseEntity<MemberDTO> login(@RequestBody Map<String,String> loginRequest){
+    public ResponseEntity<MemberResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO){
         try {
-            String email = loginRequest.get("email");
-            String password = loginRequest.get("password");
+            String email = loginRequestDTO.getEmail();
+            String password = loginRequestDTO.getPassword();
 
-           MemberDTO loginedMember =  memberService.login(email,password);
+           MemberResponseDTO loginedMember =  memberService.login(email,password);
             return new ResponseEntity<>(loginedMember,HttpStatus.OK);
         }
         catch (Exception e) {
           return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
     }
     //회원 조회
     @GetMapping("/{memberId}")
-    public ResponseEntity<MemberDTO> findMemberById(@PathVariable long memberId){
+    public ResponseEntity<MemberResponseDTO> findMemberById(@PathVariable long memberId){
         try{
-            MemberDTO foundIdMember = memberService.findById(memberId);
+            MemberResponseDTO foundIdMember = memberService.findById(memberId);
             return new ResponseEntity<>(foundIdMember,HttpStatus.OK);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -68,21 +69,21 @@ public class MemberController {
 
     //회원 수정
     @PatchMapping("/{memberId}")
-    public ResponseEntity<MemberDTO> updateMember(@PathVariable long memberId, @RequestBody Member updateMember) {
-        try {
-            MemberDTO updatedMember = memberService.updatedMember(memberId, updateMember);
-            return new ResponseEntity<>(updatedMember, HttpStatus.OK);
-        } catch (Exception e) {
+    public ResponseEntity<MemberResponseDTO> updateMember(@PathVariable long memberId, @RequestBody UpdateMemberDTO updateMemberDTO) {
+        try{
+           MemberResponseDTO updateMember =  memberService.updatedMember(memberId, updateMemberDTO);
+            return new ResponseEntity<>(updateMember, HttpStatus.OK);
+        }catch (Exception e){
             return ResponseEntity.badRequest().build();
         }
     }
     @PatchMapping("/{memberId}/password")
-    public ResponseEntity<MemberDTO> updatePassword(@PathVariable long memberId, @RequestBody Map<String, String> passwordRequest) {
+    public ResponseEntity<MemberResponseDTO> updatePassword(@PathVariable long memberId, @RequestBody Map<String, String> passwordRequest) {
         try {
             String oldPassword = passwordRequest.get("oldPassword");
             String newPassword = passwordRequest.get("newPassword");
 
-            MemberDTO updatedMember = memberService.updatedPassword(memberId, oldPassword, newPassword);
+            MemberResponseDTO updatedMember = memberService.updatedPassword(memberId, oldPassword, newPassword);
             return new ResponseEntity<>(updatedMember, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -90,7 +91,8 @@ public class MemberController {
     }
 
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<Void> deleteMember(@PathVariable long memberId){         try {
+    public ResponseEntity<Void> deleteMember(@PathVariable long memberId){
+        try {
         memberService.deleteMember(memberId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
        } catch (Exception e) {

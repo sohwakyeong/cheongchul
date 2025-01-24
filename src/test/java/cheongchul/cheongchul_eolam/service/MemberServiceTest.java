@@ -1,7 +1,9 @@
 package cheongchul.cheongchul_eolam.service;
 
 import cheongchul.cheongchul_eolam.domain.Member;
-import cheongchul.cheongchul_eolam.dto.MemberDTO;
+import cheongchul.cheongchul_eolam.dto.memberdto.MemberResponseDTO;
+import cheongchul.cheongchul_eolam.dto.memberdto.SignupRequestDTO;
+import cheongchul.cheongchul_eolam.dto.memberdto.UpdateMemberDTO;
 import cheongchul.cheongchul_eolam.repository.MemberRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,9 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,6 +33,8 @@ public class MemberServiceTest {
 
     @BeforeEach
     public void setUp() {
+        memberRepository.deleteAll();
+
         Member member = new Member("test@example.com", "Test User");
         member.setPassword(passwordEncoder.encode("password123"));
         memberRepository.save(member);
@@ -44,35 +46,39 @@ public class MemberServiceTest {
 
     @Test
     void testRegister() {
-        Member member = new Member("new@example.com", "New User");
-        member.setPassword("newPassword123");
-        MemberDTO memberDTO = memberService.register(member);
-        assertThat(memberDTO.getEmail()).isEqualTo("new@example.com");
+
+        SignupRequestDTO signupRequestDTO = new SignupRequestDTO("new@example.com","newPassword123", "New User","NewU","teacher","서운대","영문학과" );
+        MemberResponseDTO memberResponseDTO = memberService.register(signupRequestDTO);
+
+        assertThat(memberResponseDTO.getEmail()).isEqualTo("new@example.com");
+        assertThat(memberResponseDTO.getName()).isEqualTo("New User");
     }
 
     @Test
     void testLogin() {
-        MemberDTO memberDTO = memberService.login("test@example.com", "password123");
-        assertThat(memberDTO.getEmail()).isEqualTo("test@example.com");
+        MemberResponseDTO memberResponseDTO = memberService.login("test@example.com", "password123");
+        assertThat(memberResponseDTO.getEmail()).isEqualTo("test@example.com");
     }
 
     @Test
     void testFindById() {
         Member member = memberRepository.findAll().get(0);
-        MemberDTO memberDTO = memberService.findById(member.getMemberId());
+        MemberResponseDTO memberResponseDTO = memberService.findById(member.getMemberId());
 
-        assertThat(memberDTO.getEmail()).isEqualTo(member.getEmail());
-        assertThat(memberDTO.getName()).isEqualTo(member.getName());
+        assertThat(memberResponseDTO.getEmail()).isEqualTo(member.getEmail());
+        assertThat(memberResponseDTO.getName()).isEqualTo(member.getName());
     }
-
     @Test
     void testUpdateMember() {
         Member member = memberRepository.findAll().get(0);
-        member.setNickname("Updated Nickname");
+        UpdateMemberDTO updateMemberDTO = new UpdateMemberDTO("Updated Nickname", "Updated Role", "Updated University","Updated Department" );
 
-        MemberDTO updatedMember = memberService.updatedMember(member.getMemberId(), member);
+        MemberResponseDTO updatedMember = memberService.updatedMember(member.getMemberId(), updateMemberDTO);
 
         assertThat(updatedMember.getNickname()).isEqualTo("Updated Nickname");
+        assertThat(updatedMember.getUniversity()).isEqualTo("Updated University");
+        assertThat(updatedMember.getDepartment()).isEqualTo("Updated Department");
+        assertThat(updatedMember.getRole()).isEqualTo("Updated Role");
     }
 
     @Test
