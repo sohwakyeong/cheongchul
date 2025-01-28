@@ -4,6 +4,8 @@ import cheongchul.cheongchul_eolam.domain.Member;
 import cheongchul.cheongchul_eolam.dto.memberdto.MemberResponseDTO;
 import cheongchul.cheongchul_eolam.dto.memberdto.SignupRequestDTO;
 import cheongchul.cheongchul_eolam.dto.memberdto.UpdateMemberDTO;
+import cheongchul.cheongchul_eolam.exception.CustomException;
+import cheongchul.cheongchul_eolam.exception.ErrorCode;
 import cheongchul.cheongchul_eolam.mapper.MemberMapper;
 import cheongchul.cheongchul_eolam.repository.MemberRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,17 +28,20 @@ public class MemberService {
 
     //회원 가입
     public MemberResponseDTO register(SignupRequestDTO signupRequestDTO){
+        validateEmail(signupRequestDTO.getEmail());
        Member member = memberMapper.toMemberEntity(signupRequestDTO);
        member.setPassword(passwordEncoder.encode(signupRequestDTO.getPassword()));
        memberRepository.save(member);
        return memberMapper.toMemberResponseDTO(member);
     }
 
+
+
     //회원 로그인
     public MemberResponseDTO login(String email, String password){
-       Member member = memberRepository.findByEmail(email).orElseThrow(()->new IllegalArgumentException("이메일을 확인 해주세요."));
+       Member member = memberRepository.findByEmail(email).orElseThrow(()->new CustomException(ErrorCode.NOT_FOUND,"이메일을 확인 해주세요."));
        if(!passwordEncoder.matches(password, member.getPassword())){
-           throw new IllegalArgumentException("비밀번호 입력 오류입니다.");
+           throw new CustomException(ErrorCode.UNAUTHORIZED, "비밀번호 입력 오류입니다.");
        }
         return memberMapper.toMemberResponseDTO(member);
     }
@@ -44,7 +49,7 @@ public class MemberService {
 
     //회원 조회
     public MemberResponseDTO findById (long memberId){
-        Member member = memberRepository.findById(memberId).orElseThrow(()-> new NoSuchElementException("존재하지 않는 회원입니다."));
+        Member member = memberRepository.findById(memberId).orElseThrow(()-> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
         return memberMapper.toMemberResponseDTO(member);
     }
 
@@ -52,7 +57,7 @@ public class MemberService {
     public MemberResponseDTO updatedMember(long memberId, UpdateMemberDTO updateMemberDTO) {
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(()-> new NoSuchElementException("존재하지 않는 회원입니다."));
+                .orElseThrow(()->  new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
 
         if (updateMemberDTO.getNickname() != null){
             member.setNickname(updateMemberDTO.getNickname());
@@ -71,12 +76,10 @@ public class MemberService {
     //회원 비밀번호 수정
     public MemberResponseDTO updatedPassword(long memberId, String oldPassword, String newPassword){
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(()-> new NoSuchElementException("존재하지 않는 회원입니다."));
-        if(member == null){
-            throw new NoSuchElementException("존재하지 않는 회원입니다.");
-        }
+                .orElseThrow(()->  new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+
         if (!passwordEncoder.matches(oldPassword,member.getPassword())){
-            throw new IllegalArgumentException("기존 비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED, "기존 비밀번호가 일치하지 않습니다.");
         }
         String encodedNewPassword = passwordEncoder.encode(newPassword);
         member.setPassword(encodedNewPassword);
@@ -85,6 +88,21 @@ public class MemberService {
 
     //회원 탈퇴
     public void deleteMember(long memberId){
-      memberRepository.deleteById(memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+        memberRepository.delete(member);
+    }
+
+    private void validateEmail(String email) {
+        if(!isValidEmail(email)) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "이메일 형식이 올바르지 않습니다.");
+        }
+        if(memberRepository.existByEmail(email)){
+            throw new CustomException(ErrorCode.CONFLICT,"이미 사용 중인 이메일 입니다.");
+        }
+    }
+    private boolean isValidEmail(String email){
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return email != null && email.matches(emailRegex);
     }
 }
