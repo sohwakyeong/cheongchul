@@ -30,22 +30,6 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    //회원 가입
-    @PostMapping("/register")
-    public ResponseEntity<MemberResponseDTO> register(@RequestBody SignupRequestDTO signupRequestDTO) {
-        MemberResponseDTO newMember = memberService.register(signupRequestDTO);
-        return new ResponseEntity<>(newMember, HttpStatus.CREATED);
-    }
-
-    //회원 로그인
-    @PostMapping("login")
-    public ResponseEntity<MemberResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO){
-        String email = loginRequestDTO.getEmail();
-        String password = loginRequestDTO.getPassword();
-
-        MemberResponseDTO loginedMember = memberService.login(email, password);
-        return new ResponseEntity<>(loginedMember, HttpStatus.OK);
-    }
 
     //회원 조회
     @GetMapping("/{memberId}")

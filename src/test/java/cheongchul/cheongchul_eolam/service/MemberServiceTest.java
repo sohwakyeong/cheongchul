@@ -24,6 +24,8 @@ public class MemberServiceTest {
 
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private AuthService authService;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -48,16 +50,10 @@ public class MemberServiceTest {
     void testRegister() {
 
         SignupRequestDTO signupRequestDTO = new SignupRequestDTO("new@example.com","newPassword123", "New User","NewU","teacher","서운대","영문학과" );
-        MemberResponseDTO memberResponseDTO = memberService.register(signupRequestDTO);
+        MemberResponseDTO memberResponseDTO = authService.register(signupRequestDTO);
 
         assertThat(memberResponseDTO.getEmail()).isEqualTo("new@example.com");
         assertThat(memberResponseDTO.getName()).isEqualTo("New User");
-    }
-
-    @Test
-    void testLogin() {
-        MemberResponseDTO memberResponseDTO = memberService.login("test@example.com", "password123");
-        assertThat(memberResponseDTO.getEmail()).isEqualTo("test@example.com");
     }
 
     @Test

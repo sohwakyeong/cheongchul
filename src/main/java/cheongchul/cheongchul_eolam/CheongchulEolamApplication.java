@@ -9,5 +9,4 @@ public class CheongchulEolamApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CheongchulEolamApplication.class, args);
 	}
-
 }
