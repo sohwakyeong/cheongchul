@@ -1,0 +1,29 @@
+package cheongchul.cheongchul_eolam.domain;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+public class Bookmark {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "board_id")
+    private Board board;
+
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    public Bookmark(Board board, Member member) {
+        this.board = board;
+        this.member = member;
+    }
+}

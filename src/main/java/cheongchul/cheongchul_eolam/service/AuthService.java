@@ -35,15 +35,19 @@ public class AuthService {
         return memberMapper.toMemberResponseDTO(member);
     }
 
-
-
     //회원 로그인
     public String login(String email, String password){
-        Member member = memberRepository.findByEmail(email).orElseThrow(()->new CustomException(ErrorCode.NOT_FOUND,"이메일을 확인 해주세요."));
+          System.out.println("email:" + email);
+          Member member = memberRepository.findByEmail(email).orElseThrow(()->new CustomException(ErrorCode.NOT_FOUND,"이메일을 확인 해주세요."));
+          System.out.println("member = " + member);
+        
+        long memberId = member.getMemberId();
+        System.out.println("memberId = " + memberId);
         if(!passwordEncoder.matches(password, member.getPassword())){
             throw new CustomException(ErrorCode.UNAUTHORIZED, "비밀번호 입력 오류입니다.");
         }
-        return jwtTokenProvider.createToken(email);
+
+        return jwtTokenProvider.createToken(memberId);
     }
 
 

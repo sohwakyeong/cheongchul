@@ -21,26 +21,26 @@ public class JwtTokenProvider {
     }
 
     //토큰 생성
-    public String createToken(String email){
+    public String createToken(long memebrId){
         Date now = new Date();
         Date validity = new Date(now.getTime() + validateInMs);
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(String.valueOf(memebrId))
                 .setIssuedAt(now)
                 .setExpiration(validity)
-                .signWith(key, SignatureAlgorithm.ES256)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-
     }
-    //클라이언트에서 토큰 받아서 이메일 추출
-    public String getEmailFromToken(String token){
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+    //클라이언트에서 토큰 받아서 아이디 추출
+    public long getMemberIdFromToken(String token){
+       String memberIdStr =  Jwts.parserBuilder()
+               .setSigningKey(key)
+               .build()
+               .parseClaimsJws(token)
+               .getBody()
+               .getSubject();
+       return Long.parseLong(memberIdStr);
     }
 
     //토큰 검증

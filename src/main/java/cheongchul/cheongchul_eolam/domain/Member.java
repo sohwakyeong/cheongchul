@@ -1,12 +1,11 @@
 package cheongchul.cheongchul_eolam.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,6 +16,7 @@ public class Member  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long memberId;
+
     private String email;
     private String password;
     private String name;
@@ -25,6 +25,9 @@ public class Member  {
     private String university;
     private String department;
     private boolean isAdmin;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Board> boards;
 
     public Member(String email, String password) {
         this.email = email;
