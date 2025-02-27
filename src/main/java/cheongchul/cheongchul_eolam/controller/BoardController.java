@@ -1,21 +1,17 @@
 package cheongchul.cheongchul_eolam.controller;
 
-import cheongchul.cheongchul_eolam.domain.Board;
 import cheongchul.cheongchul_eolam.dto.boarddto.BoardCreateDTO;
 import cheongchul.cheongchul_eolam.dto.boarddto.BoardResponseDTO;
 import cheongchul.cheongchul_eolam.dto.boarddto.BoardUpdateDTO;
 import cheongchul.cheongchul_eolam.dto.boarddto.PageResponseDTO;
 import cheongchul.cheongchul_eolam.service.BoardService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 import static cheongchul.cheongchul_eolam.security.authUtils.getMemberId;
 
@@ -47,28 +43,46 @@ public class BoardController {
             return new ResponseEntity<>(getBoard,HttpStatus.OK);
     }
     //겟 전체글
-    @GetMapping
-    public ResponseEntity<PageResponseDTO> getAllBoards(Authentication authentication, @RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "size", defaultValue = "3") int size,@RequestParam(value = "category", required = false) String category) {
+    @GetMapping("/all")
+    public ResponseEntity<PageResponseDTO> getAllBoards(Authentication authentication, @RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "size", defaultValue = "3") int size,@RequestParam(value = "category", required = false) String category,@RequestParam(value = "sortType")String sortType) {
         Long memberId = (authentication !=null) ? getMemberId(authentication):null;
-        PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by("CreatedAt").descending());
+        Sort sort = getSortType(sortType);
+        PageRequest pageRequest = PageRequest.of(page - 1, size, sort);
         PageResponseDTO response = boardService.allBoards(pageRequest, memberId, category);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
+    private Sort getSortType(String sortType) {
+        return switch (sortType.toLowerCase()) {
+            case "popular" -> Sort.by(Sort.Order.desc("bookmarkCount"));
+            case "latest" -> Sort.by(Sort.Order.desc("createdAt"));
+            default -> Sort.by(Sort.Order.asc("createdAt"));
+        };
+    }
+
     //패치 글
     @PatchMapping("/{boardId}")
-    public ResponseEntity<Board> updateBoard (long boardId, BoardUpdateDTO boardUpdateDTO) {
-        try {
-            Board board = boardService.updatedBoard(boardId, boardUpdateDTO);
+    public ResponseEntity<BoardResponseDTO> updateBoard (@PathVariable("boardId")long boardId, @RequestBody BoardUpdateDTO boardUpdateDTO,Authentication authentication) {
+           long memberId = getMemberId(authentication);
+            BoardResponseDTO board = boardService.updatedBoard(boardId,memberId,boardUpdateDTO);
+        System.out.println("board - Title: " + board.getTitle() +
+                ", Category: " + board.getCategory() +
+                ", Content: " + board.getContent());
             return new ResponseEntity<>(board, HttpStatus.OK);
-        }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
     }
+
     // 글삭제
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<Void> deleteBoard(@PathVariable long boardId,Authentication authentication) {
+    public ResponseEntity<Void> deleteBoard(@PathVariable("boardId") long boardId,Authentication authentication) {
             long memberId = getMemberId(authentication);
             boardService.deleteBoard(boardId,memberId);
             return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/{boardId}/author")
+    public ResponseEntity<Long> getAuthorId(@PathVariable("boardId") long id,Authentication authentication) {
+        long memberId = getMemberId(authentication);
+        long authorId = boardService.findAuthorIdByBoardId(id,memberId);
+        System.out.println(authorId);
+        return new ResponseEntity<>(authorId, HttpStatus.OK);
     }
 }

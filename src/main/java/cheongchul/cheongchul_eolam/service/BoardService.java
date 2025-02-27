@@ -12,6 +12,7 @@ import cheongchul.cheongchul_eolam.repository.MemberRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ public class BoardService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
         Board newBoard = boardMapper.toBoard(boardCreateDTO, member);
         boardRepository.save(newBoard);
+        System.out.println("New Board ID: " + newBoard.getBoardId());
         return boardMapper.toBoardResponseDTO(newBoard);
     }
 
@@ -49,7 +51,7 @@ public class BoardService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
 
-        BoardResponseDTO boardResponseDTO = boardMapper.toBoardResponseDTO(board);
+        BoardResponseDTO boardResponseDTO = boardMapper.toBoardResponseDTOWithId(board);
         boardResponseDTO.setBookmarked(bookmarkService.isBookmarked(board,member));
 
         return boardResponseDTO;
@@ -80,16 +82,26 @@ public class BoardService {
 
 
     //글수정
-    public Board updatedBoard(long boardId, BoardUpdateDTO boardUpdateDTO) {
+    @Transactional
+    public BoardResponseDTO updatedBoard(long boardId, long memberId,BoardUpdateDTO boardUpdateDTO) {
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new NoSuchElementException("존재하지 않는 게시글 입니다."));
-
-        if (boardUpdateDTO.getTitle() != null) {
+        System.out.println("boardUpdateDTO - Title: " + boardUpdateDTO.getTitle() +
+                ", Category: " + boardUpdateDTO.getCategory() +
+                ", Content: " + boardUpdateDTO.getContent());
+        Member author = board.getMember();
+        if(author == null || author.getMemberId() != memberId) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED, "해당글의 작성자만 수정이 가능합니다.");
+        }
+        if (boardUpdateDTO.getTitle() != null && !boardUpdateDTO.getTitle().isEmpty()) {
             board.setTitle(boardUpdateDTO.getTitle());
         }
-        if (boardUpdateDTO.getContent() != null) {
+        if (boardUpdateDTO.getCategory()!= null && !boardUpdateDTO.getCategory().isEmpty()) {
+            board.setContent(boardUpdateDTO.getCategory());
+        }
+        if (boardUpdateDTO.getContent() != null && !boardUpdateDTO.getContent().isEmpty()) {
             board.setContent(boardUpdateDTO.getContent());
         }
-        return boardRepository.save(board);
+        return boardMapper.toBoardResponseDTOWithId(board);
     }
 
     //글삭제
@@ -100,6 +112,15 @@ public class BoardService {
           throw new CustomException(ErrorCode.UNAUTHORIZED, "해당글의 작성자만 삭제가 가능합니다.");
       }
       boardRepository.deleteById(boardId);
+    }
+
+    public Long findAuthorIdByBoardId(long boardId,long memberId) {
+        System.out.println("시작");
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new NoSuchElementException("존재하지 않는 게시글 입니다."));
+        long boardAuthorId = board.getMember().getMemberId();
+        return boardAuthorId;
     }
 }
 // allBoards 무한 스크롤이 가능한 페이지네이션으로 바꾸기/ createBoard useReducer 상태 관리 적용가능하게 바꾸기

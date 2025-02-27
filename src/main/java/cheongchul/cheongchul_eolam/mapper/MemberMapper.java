@@ -11,9 +11,8 @@ public interface MemberMapper {
 
     @Mapping(target = "memberId", ignore = true)
     @Mapping(target = "admin", constant = "false")
-
+    @Mapping(target = "universityImgUrl", ignore = true)
     Member toMemberEntity(SignupRequestDTO signupRequestDTO);
 
     MemberResponseDTO toMemberResponseDTO(Member member);
 }
-

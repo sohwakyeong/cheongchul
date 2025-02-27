@@ -21,15 +21,29 @@ public class Board {
     private String content;
     private String category;
 
+    @Column(nullable = false)
+    private int bookmarkCount = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
     private String authorName;
     private String authorDepartment;
     private String authorUniversity;
+    private String universityImgUrl;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    public void increaseBookmarkCount() {
+        this.bookmarkCount++;
+    }
+
+    public void decreaseBookmarkCount() {
+        if (this.bookmarkCount > 0) {
+            this.bookmarkCount--;
+        }
+    }
 }
 
 

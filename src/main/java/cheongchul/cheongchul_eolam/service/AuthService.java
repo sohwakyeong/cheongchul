@@ -17,19 +17,22 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberMapper memberMapper;
+    private final UniversityImageService universityImageService;
 
     public AuthService(MemberRepository memberRepository, PasswordEncoder passwordEncoder,
-                       JwtTokenProvider jwtTokenProvider, MemberMapper memberMapper) {
+                       JwtTokenProvider jwtTokenProvider, MemberMapper memberMapper,UniversityImageService universityImageService) {
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.memberMapper = memberMapper;
+        this.universityImageService = universityImageService;
     }
 
     //회원 가입
     public MemberResponseDTO register(SignupRequestDTO signupRequestDTO){
         validateEmail(signupRequestDTO.getEmail());
         Member member = memberMapper.toMemberEntity(signupRequestDTO);
+        member.setUniversityImgUrl(universityImageService.getUniversityImageUrl(member.getUniversity()));
         member.setPassword(passwordEncoder.encode(signupRequestDTO.getPassword()));
         memberRepository.save(member);
         return memberMapper.toMemberResponseDTO(member);

@@ -19,4 +19,5 @@ public class MemberResponseDTO {
     private String university;
     private String department;
     private boolean isAdmin;
+    private String universityImgUrl;
 }

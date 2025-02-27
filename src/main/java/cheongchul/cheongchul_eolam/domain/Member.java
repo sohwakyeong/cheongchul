@@ -26,6 +26,8 @@ public class Member  {
     private String department;
     private boolean isAdmin;
 
+    private String universityImgUrl;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Board> boards;
 

@@ -22,6 +22,18 @@ public class Bookmark {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Column(nullable = false)
+    private int bookmarkCount = 0;
+
+    public void increaseBookmark() {
+        this.bookmarkCount++;
+    }
+    public void decreaseBookmarkCount() {
+        if(this.bookmarkCount > 0){
+            this.bookmarkCount--;
+        }
+    }
+
     public Bookmark(Board board, Member member) {
         this.board = board;
         this.member = member;

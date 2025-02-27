@@ -12,4 +12,5 @@ import lombok.Setter;
 public class BoardUpdateDTO {
     private String title;
     private String content;
+    private String category;
 }

@@ -21,6 +21,7 @@ public class BoardResponseDTO {
   private String authorDepartment;
   private String authorUniversity;
   private String formatDate;
+  private String universityImgUrl;
   private boolean isBookmarked;
 
   public BoardResponseDTO(Board board, List<Long> bookmarkedBoardIds) {
@@ -31,6 +32,7 @@ public class BoardResponseDTO {
     this.authorName = board.getMember().getNickname();
     this.authorDepartment = board.getMember().getDepartment();
     this.authorUniversity = board.getMember().getUniversity();
+    this.universityImgUrl = board.getMember().getUniversityImgUrl();
     this.formatDate = formatDate(board.getCreatedAt());
     this.isBookmarked = bookmarkedBoardIds.contains(board.getBoardId());
   }
