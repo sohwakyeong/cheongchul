@@ -85,22 +85,22 @@ public class BoardService {
     @Transactional
     public BoardResponseDTO updatedBoard(long boardId, long memberId,BoardUpdateDTO boardUpdateDTO) {
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new NoSuchElementException("존재하지 않는 게시글 입니다."));
-        System.out.println("boardUpdateDTO - Title: " + boardUpdateDTO.getTitle() +
-                ", Category: " + boardUpdateDTO.getCategory() +
-                ", Content: " + boardUpdateDTO.getContent());
         Member author = board.getMember();
         if(author == null || author.getMemberId() != memberId) {
             throw new CustomException(ErrorCode.UNAUTHORIZED, "해당글의 작성자만 수정이 가능합니다.");
         }
-        if (boardUpdateDTO.getTitle() != null && !boardUpdateDTO.getTitle().isEmpty()) {
+        if (!boardUpdateDTO.getTitle().isEmpty() && !board.getTitle().equals(boardUpdateDTO.getTitle())) {
             board.setTitle(boardUpdateDTO.getTitle());
         }
-        if (boardUpdateDTO.getCategory()!= null && !boardUpdateDTO.getCategory().isEmpty()) {
-            board.setContent(boardUpdateDTO.getCategory());
+
+        if (!boardUpdateDTO.getCategory().isEmpty() && !board.getCategory().equals(boardUpdateDTO.getCategory())) {
+            board.setCategory(boardUpdateDTO.getCategory());
         }
-        if (boardUpdateDTO.getContent() != null && !boardUpdateDTO.getContent().isEmpty()) {
+
+        if (!boardUpdateDTO.getContent().isEmpty() && !board.getContent().equals(boardUpdateDTO.getContent())) {
             board.setContent(boardUpdateDTO.getContent());
         }
+
         return boardMapper.toBoardResponseDTOWithId(board);
     }
 
