@@ -58,13 +58,21 @@ public class BoardService {
     }
 
     //게시판 전체 조회
-    public PageResponseDTO allBoards(Pageable pageable,Long memberId,String category) {
+    public PageResponseDTO allBoards(Pageable pageable,Long memberId,String category,String search) {
 
         Page<Board> boardPage;
 
-        if(!"all".equals(category) && category != null) {
-            boardPage = boardRepository.findByCategory(category,pageable);
+        if (search != null && !search.isEmpty() && !"all".equals(category) && category != null) {
+            // 검색어와 카테고리가 둘 다 있을 때
+            boardPage = boardRepository.findByTitleContainingAndCategory(search, category, pageable);
+        } else if (search != null && !search.isEmpty()) {
+            // 검색어만 있을 때
+            boardPage = boardRepository.findByTitleContaining(search, pageable);
+        } else if (!"all".equals(category) && category != null) {
+            // 카테고리만 있을 때
+            boardPage = boardRepository.findByCategory(category, pageable);
         } else {
+            // 둘 다 없을 때
             boardPage = boardRepository.findAll(pageable);
         }
 
@@ -79,6 +87,7 @@ public class BoardService {
 
         return new PageResponseDTO(boardResponseDTOs,pageInfo);
     }
+
 
 
     //글수정

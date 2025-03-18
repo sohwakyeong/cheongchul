@@ -5,6 +5,9 @@ import cheongchul.cheongchul_eolam.dto.boarddto.BoardResponseDTO;
 import cheongchul.cheongchul_eolam.dto.boarddto.BoardUpdateDTO;
 import cheongchul.cheongchul_eolam.dto.boarddto.PageResponseDTO;
 import cheongchul.cheongchul_eolam.service.BoardService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -44,11 +47,12 @@ public class BoardController {
     }
     //겟 전체글
     @GetMapping("/all")
-    public ResponseEntity<PageResponseDTO> getAllBoards(Authentication authentication, @RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "size", defaultValue = "3") int size,@RequestParam(value = "category", required = false) String category,@RequestParam(value = "sortType")String sortType) {
+    public ResponseEntity<PageResponseDTO> getAllBoards(Authentication authentication, @RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "size", defaultValue = "3") int size, @RequestParam(value = "category", required = false) String category, @RequestParam(value = "sortType")String sortType,@RequestParam(value = "search",required = false)String search) {
+
         Long memberId = (authentication !=null) ? getMemberId(authentication):null;
         Sort sort = getSortType(sortType);
         PageRequest pageRequest = PageRequest.of(page - 1, size, sort);
-        PageResponseDTO response = boardService.allBoards(pageRequest, memberId, category);
+        PageResponseDTO response = boardService.allBoards(pageRequest, memberId, category,search);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
