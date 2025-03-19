@@ -21,12 +21,12 @@ public class JwtTokenProvider {
     }
 
     //토큰 생성
-    public String createToken(long memebrId){
+    public String createToken(long memberId){
         Date now = new Date();
         Date validity = new Date(now.getTime() + validateInMs);
 
         return Jwts.builder()
-                .setSubject(String.valueOf(memebrId))
+                .setSubject(String.valueOf(memberId))
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS256)

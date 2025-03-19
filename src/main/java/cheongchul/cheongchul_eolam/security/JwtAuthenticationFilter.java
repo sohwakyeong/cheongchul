@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
@@ -37,11 +36,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         if(token != null && token.startsWith("Bearer ")){
             token = token.substring(7);
         }
-        System.out.println("token = " + token);
+
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             long memberId = jwtTokenProvider.getMemberIdFromToken(token);
-            System.out.println("memberId = " + memberId);
+
 
             CustomUserDetails user = new CustomUserDetails(memberId,"",new ArrayList<>());
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
