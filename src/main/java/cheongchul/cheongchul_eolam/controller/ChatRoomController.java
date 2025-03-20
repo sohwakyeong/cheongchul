@@ -32,4 +32,9 @@ public class ChatRoomController {
         List<ChatRoomListDTO> chatRooms = chatRoomService.getUserChatRooms(loginUserId);
         return new ResponseEntity<>(chatRooms,HttpStatus.OK);
     }
+    @DeleteMapping("/rooms/{chatRoomId}")
+    public ResponseEntity<Void> deleteChatRoom(@PathVariable("chatRoomId") long chatroomId){
+        chatRoomService.deleteChatroom(chatroomId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

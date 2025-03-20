@@ -31,20 +31,29 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
 
     public ChatRoomDTO findOrCreateChatRoom(long me, long other) {
-        Optional<ChatRoom> existingRoom = chatRoomRepository.findByMeAndOther(me, other);
-
-        if (existingRoom.isEmpty()) {
-            existingRoom = chatRoomRepository.findByOtherAndMe(other, me);
+        if (me == other) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "자기 자신과는 채팅할 수 없습니다.");
         }
 
-        ChatRoom chatRoom = existingRoom.orElseGet(() -> chatRoomRepository.save(new ChatRoom(me, other)));
+        Member meUser = memberRepository.findById(me)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
 
         Member otherUser = memberRepository.findById(other)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
 
+
+        if (meUser.getRole().equals(otherUser.getRole())) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "멘토와 멘티만 채팅할 수 있습니다.");
+        }
+
+
+        Optional<ChatRoom> existingRoom = chatRoomRepository.findByMeAndOther(me, other)
+                .or(() -> chatRoomRepository.findByOtherAndMe(other, me));
+
+        ChatRoom chatRoom = existingRoom.orElseGet(() -> chatRoomRepository.save(new ChatRoom(me, other)));
+
         return new ChatRoomDTO(chatRoom.getChatRoomId(), chatRoom.getMe(), otherUser.getNickname());
     }
-
 
 
     public List<ChatRoomListDTO> getUserChatRooms(long memberId) {
@@ -70,6 +79,10 @@ public class ChatRoomService {
                     lastMessageTime
             );
         }).collect(Collectors.toList());
+    }
+    public void deleteChatroom (long chatroomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatroomId).orElseThrow(() ->new CustomException(ErrorCode.NOT_FOUND,"존재하지 않는 채팅방입니다"));
+        chatRoomRepository.delete(chatRoom);
     }
 
 }

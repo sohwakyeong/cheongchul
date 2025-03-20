@@ -29,6 +29,6 @@ public class ChatMessageService {
         chatRoom.addChatMessage(chat);
 
         chatMessageRepository.save(chat);
-        return chat; // 저장된 채팅 메시지 반환
+        return chat;
     }
 }
