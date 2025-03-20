@@ -40,7 +40,6 @@ public class BoardController {
     //겟 개별 글
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDTO> getEachBoard(@PathVariable("boardId") long boardId,Authentication authentication){
-            System.out.println("요청 들어옴: boardId = " + boardId);
             long memberId = getMemberId(authentication);
             BoardResponseDTO getBoard = boardService.findById(boardId,memberId);
             return new ResponseEntity<>(getBoard,HttpStatus.OK);
@@ -69,9 +68,6 @@ public class BoardController {
     public ResponseEntity<BoardResponseDTO> updateBoard (@PathVariable("boardId")long boardId, @RequestBody BoardUpdateDTO boardUpdateDTO,Authentication authentication) {
            long memberId = getMemberId(authentication);
             BoardResponseDTO board = boardService.updatedBoard(boardId,memberId,boardUpdateDTO);
-        System.out.println("board - Title: " + board.getTitle() +
-                ", Category: " + board.getCategory() +
-                ", Content: " + board.getContent());
             return new ResponseEntity<>(board, HttpStatus.OK);
     }
 
@@ -86,7 +82,6 @@ public class BoardController {
     public ResponseEntity<Long> getAuthorId(@PathVariable("boardId") long id,Authentication authentication) {
         long memberId = getMemberId(authentication);
         long authorId = boardService.findAuthorIdByBoardId(id,memberId);
-        System.out.println(authorId);
         return new ResponseEntity<>(authorId, HttpStatus.OK);
     }
 }

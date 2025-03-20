@@ -33,7 +33,6 @@ public class AuthController {
     //회원 로그인
     @PostMapping("/login")
         public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDTO loginRequestDTO) {
-        System.out.println(loginRequestDTO.getEmail());
             String token = authService.login(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
             return new ResponseEntity<>(Map.of("token", token), HttpStatus.OK);
         }

@@ -40,7 +40,6 @@ public class BoardService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
         Board newBoard = boardMapper.toBoard(boardCreateDTO, member);
         boardRepository.save(newBoard);
-        System.out.println("New Board ID: " + newBoard.getBoardId());
         return boardMapper.toBoardResponseDTO(newBoard);
     }
 
@@ -124,7 +123,6 @@ public class BoardService {
     }
 
     public Long findAuthorIdByBoardId(long boardId,long memberId) {
-        System.out.println("시작");
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new NoSuchElementException("존재하지 않는 게시글 입니다."));
@@ -132,4 +130,3 @@ public class BoardService {
         return boardAuthorId;
     }
 }
-// allBoards 무한 스크롤이 가능한 페이지네이션으로 바꾸기/ createBoard useReducer 상태 관리 적용가능하게 바꾸기

@@ -41,8 +41,6 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()->  new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
 
-        System.out.println("updateMemberDTO.getNickname() = " + updateMemberDTO.getNickname());
-
         if (updateMemberDTO.getNickname() != null && !updateMemberDTO.getNickname().isEmpty()){
             member.setNickname(updateMemberDTO.getNickname());
         }

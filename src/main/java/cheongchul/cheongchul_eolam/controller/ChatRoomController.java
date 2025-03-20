@@ -28,7 +28,6 @@ public class ChatRoomController {
     }
     @GetMapping("/rooms")
     public ResponseEntity<List<ChatRoomListDTO>> getUserChatRooms(Authentication authentication) {
-        System.out.println("시작");
         long loginUserId = getMemberId(authentication);
         List<ChatRoomListDTO> chatRooms = chatRoomService.getUserChatRooms(loginUserId);
         return new ResponseEntity<>(chatRooms,HttpStatus.OK);
