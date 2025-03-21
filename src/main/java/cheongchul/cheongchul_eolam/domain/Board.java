@@ -18,6 +18,7 @@ public class Board {
     private long boardId;
 
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String content;
     private String category;
 

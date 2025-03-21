@@ -10,6 +10,7 @@ import cheongchul.cheongchul_eolam.mapper.BoardMapper;
 import cheongchul.cheongchul_eolam.repository.BoardRepository;
 import cheongchul.cheongchul_eolam.repository.BookmarkRepository;
 import cheongchul.cheongchul_eolam.repository.MemberRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class BookmarkService {
         return bookmarkRepository.existsByBoardAndMember(board, member);
     }
 
-
+    @Transactional
     public void addBookmark(Long boardId,long memberId) {
         Board board = boardRepository.findById(boardId).orElseThrow(()-> new CustomException(ErrorCode.NOT_FOUND,"해당글을 찾을수가 없습니다."));
 
@@ -44,7 +45,7 @@ public class BookmarkService {
         bookmarkRepository.save(bookmark);
         board.increaseBookmarkCount();
     }
-
+    @Transactional
     public void removeBookmark (Long boardId,long memberId) {
         Board board = boardRepository.findById(boardId).orElseThrow(()-> new CustomException(ErrorCode.NOT_FOUND,"해당글을 찾을수가 없습니다."));
 
