@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -57,29 +59,38 @@ public class ChatRoomService {
 
 
     public List<ChatRoomListDTO> getUserChatRooms(long memberId) {
+
         List<ChatRoom> chatRooms = chatRoomRepository.findByMeOrOther(memberId, memberId);
+        List<Long> chatRoomIds = chatRooms.stream()
+                .map(ChatRoom::getChatRoomId)
+                .collect(Collectors.toList());
+
+        List<ChatMessage> lastMessages = chatMessageRepository.findLatestMessagesByChatRoomIds(chatRoomIds);
+
+        Map<Long, ChatMessage> lastMessageMap = new HashMap<>();
+        for (ChatMessage message : lastMessages) {
+            Long roomId = message.getChatRoom().getChatRoomId();
+            lastMessageMap.put(roomId, message);
+        }
 
         return chatRooms.stream().map(chatRoom -> {
             long otherId = chatRoom.getMe().equals(memberId) ? chatRoom.getOther() : chatRoom.getMe();
             Member otherUser = memberRepository.findById(otherId)
                     .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
 
-            PageRequest pageRequest = PageRequest.of(0, 1);
-            Page<ChatMessage> lastMessagePage = chatMessageRepository.findLastMessageByChatRoomId(chatRoom.getChatRoomId(), pageRequest);
-
-            String lastMessage = lastMessagePage.hasContent() ? lastMessagePage.getContent().get(0).getMessage() : null;
-            LocalDateTime lastMessageTime = lastMessagePage.hasContent() ? lastMessagePage.getContent().get(0).getCreatedAt() : null;
+            ChatMessage lastMessage = lastMessageMap.get(chatRoom.getChatRoomId());
 
             return new ChatRoomListDTO(
                     chatRoom.getChatRoomId(),
                     memberId,
                     otherUser.getNickname(),
                     otherUser.getUniversityImgUrl(),
-                    lastMessage,
-                    lastMessageTime
+                    lastMessage != null ? lastMessage.getMessage() : null,
+                    lastMessage != null ? lastMessage.getCreatedAt() : null
             );
         }).collect(Collectors.toList());
     }
+
     public void deleteChatroom (long chatroomId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatroomId).orElseThrow(() ->new CustomException(ErrorCode.NOT_FOUND,"존재하지 않는 채팅방입니다"));
         chatRoomRepository.delete(chatRoom);
